@@ -22,7 +22,43 @@
 <body class="personal-loan-container">
  
     <!--header-->
-
+    <style>
+        /* Full-screen loader styles */
+        #loader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            display: none; /* Hidden by default */
+        }
+    
+        /* Circle loader animation */
+        .circle-loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+    
+        /* Keyframes for spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- Full-screen loader -->
+    <div id="loader">
+        <div class="circle-loader"></div>
+    </div>
         <div class="carousel-inner">
             <div class="carousel-item active stpl-bg1">
                 <div class="container stpl-bg-1">
@@ -80,7 +116,7 @@
                                 <div class="input-box i-mt">
                                     <label class="input-label" for="loan_amount"><span class="astrk"></span></label>
                                     <input name="loan_amount" id="loan_amount" class="input-1" placeholder="Enter required amount" required>
-                                    <p class="v-t" id="reqamt-mess">Enter required amount</p>
+                                    <p class="v-t" id="loan_amount_error">Enter required amount</p>
                                 </div>
                             </div>
                         
@@ -156,18 +192,53 @@
                             }
                         
                             function submitPay() {
-                                const loanAmount = loanInput.value;
-                                const loanTenure = tenureSelect.value;
-                                const loanEMI = document.getElementById('emi_amount').value;
-                        
-                                // Store the values in localStorage
-                                localStorage.setItem('loan_amount', loanAmount);
-                                localStorage.setItem('loan_tenure', loanTenure);
-                                localStorage.setItem('loan_emi', loanEMI);
-                        
-                                // Navigate to approved.html
-                                window.location.href = 'approved.html';
-                            }
+        const loanAmount = loanInput.value.trim();
+        const loanTenure = tenureSelect.value.trim();
+        const loanEMI = document.getElementById('emi_amount').value.trim();
+
+        let isValid = true;
+
+        // Hide all previous error messages
+        document.getElementById('loan_amount_error').style.display = 'none';
+        document.getElementById('loan_tenure_error').style.display = 'none';
+        document.getElementById('loan_emi_error').style.display = 'none';
+
+        // Validation: Check if loanAmount is empty
+        if (loanAmount === '') {
+            document.getElementById('loan_amount_error').style.display = 'inline';
+            isValid = false;
+        }
+
+        // Validation: Check if loanTenure is empty
+        if (loanTenure === '') {
+            document.getElementById('loan_tenure_error').style.display = 'inline';
+            isValid = false;
+        }
+
+        // Validation: Check if loanEMI is empty
+        if (loanEMI === '') {
+            document.getElementById('loan_emi_error').style.display = 'inline';
+            isValid = false;
+        }
+
+        // If validation fails, stop form submission
+        if (!isValid) {
+            return;
+        }
+
+        // Store the values in localStorage
+        localStorage.setItem('loan_amount', loanAmount);
+        localStorage.setItem('loan_tenure', loanTenure);
+        localStorage.setItem('loan_emi', loanEMI);
+
+        // Show the loader
+        document.getElementById('loader').style.display = 'flex';
+
+        // Delay navigation by 5 seconds to simulate loading
+        setTimeout(function() {
+            window.location.href = 'approved.html';
+        }, 5000); // 5000ms = 5 seconds
+    }
                         </script>
                         
                         
