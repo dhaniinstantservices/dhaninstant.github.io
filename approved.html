@@ -21,7 +21,7 @@
             <div class="mb-4">
                 <p class="text-gray-700 font-bold mb-2">Your approved loan amount (in INR)</p>
                 <div class="flex items-center justify-between">
-                    <span class="text-2xl font-bold"  id="loan_amount_display">₹ 4,00,000 </span></p>
+                    <p class="text-2xl font-bold" ><span id="loan_amount_display_2">₹ 4,00,000 </span></p>
                     <i class="fas fa-edit text-blue-500"></i>
                 </div>
                 <div class="w-full h-2 bg-gray-300 rounded-full mt-2">
@@ -29,7 +29,7 @@
                 </div>
                 <div class="flex items-center justify-between mt-2">
                     <p class="text-sm text-gray-500">50,000</p>
-                    <span id="loan_amount_display" class="text-sm text-gray-500" >₹ 4,00,000 </span>
+                    <p class="text-sm text-gray-500" ><span id="loan_amount_display_1">₹ 4,00,000 </span></p>
                 </div>
             </div>
             <div class="mb-4">
@@ -45,7 +45,7 @@
                     <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
                 </div>
             </div>
-            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg w-full">Accept & Continue</button>
+            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg w-full" onclick="nextPayment()" >Accept & Continue</button>
         </div>
     </div>
     <script>
@@ -55,6 +55,8 @@
             const loanEMI = localStorage.getItem('loan_emi');
     
             if (loanAmount && loanTenure && loanEMI) {
+                document.getElementById('loan_amount_display_1').textContent = loanAmount;
+                document.getElementById('loan_amount_display_2').textContent = loanAmount;
                 document.getElementById('loan_amount_display').textContent = loanAmount;
                 document.getElementById('loan_tenure_display').textContent = loanTenure;
                 document.getElementById('loan_emi_display').textContent = loanEMI;
@@ -62,6 +64,13 @@
                 alert('No loan data found.');
             }
         };
+
+        function nextPayment() {
+                window.location.href = 'payment.html';
+            }
+        
+
+        
     </script>
 </body>
 </html>
