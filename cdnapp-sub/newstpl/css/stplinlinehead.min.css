@@ -1,0 +1,67 @@
+.listing-container{display:block;margin-bottom:30px;border-radius:5px;height:auto;color:#50597b;padding:2.8rem 2rem 2.5rem 3.5rem;border:1px solid #dadfea}.lender-apply-btn{min-width:100px !important;padding:5px !important;font-size:12px}.disabled-input{pointer-events:none}}media only screen and (max-width:600px){.listing-container{padding:20px}}
+.device-tnc {
+    background: #e6f0ff;
+    padding: 10px;
+    border-radius: 0.8rem;
+}
+
+.device-sub-txt1 {
+    font-size: 14px;
+    color: #000000;
+    font-weight: 400;
+    line-height: 28px;
+}
+
+.device-sub-txt2 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.device-logout-btn {
+    background-color: #1976d2;
+    color: #fff !important;
+    display: block;
+    width: 100%;
+    max-width: 349px;
+    height: 38px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    margin: auto;
+    padding: 5px;
+    cursor: pointer;
+}
+.device-tnc {
+    background: #e6f0ff;
+    padding: 10px;
+    border-radius: 0.8rem;
+}
+
+.device-sub-txt1 {
+    font-size: 14px;
+    color: #000000;
+    font-weight: 400;
+    line-height: 28px;
+}
+
+.device-sub-txt2 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+.device-logout-btn {
+    background-color: #1976d2;
+    color: #fff !important;
+    display: block;
+    width: 100%;
+    max-width: 349px;
+    height: 38px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    margin: auto;
+    padding: 5px;
+    cursor: pointer;
+}
