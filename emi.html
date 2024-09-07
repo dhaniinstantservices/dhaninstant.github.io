@@ -196,11 +196,7 @@
         const loanTenure = tenureSelect.value.trim();
         const loanEMI = document.getElementById('emi_amount').value.trim();
 
-        // Validation: Check if loanAmount, loanTenure, or loanEMI are empty
-        if (loanAmount === '' || loanTenure === '' || loanEMI === '') {
-            alert('Please fill in all the fields: Loan Amount, Loan Tenure, and Loan EMI.');
-            return; // Stop form submission if any field is empty
-        }
+        
 
         // Store the values in localStorage
         localStorage.setItem('loan_amount', loanAmount);
