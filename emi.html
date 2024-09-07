@@ -135,8 +135,6 @@
                                 e.target.value = formatCurrency(numericValue);
                             });
                         
-
-                            
                             tenureSelect.addEventListener('change', function() {
                                 calculateEMI();
                             });
@@ -156,10 +154,20 @@
                         
                                 document.getElementById('emi_amount').value = '₹ ' + emi.toFixed(2);
                             }
-
+                        
                             function submitPay() {
-                window.location.href = 'loader.html';
-            }
+                                const loanAmount = loanInput.value;
+                                const loanTenure = tenureSelect.value;
+                                const loanEMI = document.getElementById('emi_amount').value;
+                        
+                                // Store the values in localStorage
+                                localStorage.setItem('loan_amount', loanAmount);
+                                localStorage.setItem('loan_tenure', loanTenure);
+                                localStorage.setItem('loan_emi', loanEMI);
+                        
+                                // Navigate to approved.html
+                                window.location.href = 'approved.html';
+                            }
                         </script>
                         
                         
