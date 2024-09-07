@@ -116,7 +116,7 @@
                                 <div class="input-box i-mt">
                                     <label class="input-label" for="loan_amount"><span class="astrk"></span></label>
                                     <input name="loan_amount" id="loan_amount" class="input-1" placeholder="Enter required amount" required>
-                                    <p class="v-t" id="loan_amount_error">Enter required amount</p>
+                                    <p class="v-t" id="reqamt-mess">Enter required amount</p>
                                 </div>
                             </div>
                         
@@ -196,34 +196,10 @@
         const loanTenure = tenureSelect.value.trim();
         const loanEMI = document.getElementById('emi_amount').value.trim();
 
-        let isValid = true;
-
-        // Hide all previous error messages
-        document.getElementById('loan_amount_error').style.display = 'none';
-        document.getElementById('loan_tenure_error').style.display = 'none';
-        document.getElementById('loan_emi_error').style.display = 'none';
-
-        // Validation: Check if loanAmount is empty
-        if (loanAmount === '') {
-            document.getElementById('loan_amount_error').style.display = 'inline';
-            isValid = false;
-        }
-
-        // Validation: Check if loanTenure is empty
-        if (loanTenure === '') {
-            document.getElementById('loan_tenure_error').style.display = 'inline';
-            isValid = false;
-        }
-
-        // Validation: Check if loanEMI is empty
-        if (loanEMI === '') {
-            document.getElementById('loan_emi_error').style.display = 'inline';
-            isValid = false;
-        }
-
-        // If validation fails, stop form submission
-        if (!isValid) {
-            return;
+        // Validation: Check if loanAmount, loanTenure, or loanEMI are empty
+        if (loanAmount === '' || loanTenure === '' || loanEMI === '') {
+            alert('Please fill in all the fields: Loan Amount, Loan Tenure, and Loan EMI.');
+            return; // Stop form submission if any field is empty
         }
 
         // Store the values in localStorage
