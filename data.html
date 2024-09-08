@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Payment</title>
+</head>
+<body>
+
+    <h2>Pay via UPI</h2>
+    <button id="payBtn">Pay ₹100</button>
+
+    <script>
+        document.getElementById("payBtn").addEventListener("click", function() {
+            const upiID = "7366042099@ybl";
+            const amount = 10; // specify the amount
+            const name = "rakesh"; // optional, recipient name
+            const transactionNote = "Payment for services"; // optional, transaction note
+            const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${amount}&tn=${transactionNote}`;
+
+            // Open the UPI payment link
+            window.location.href = upiLink;
+        });
+    </script>
+
+</body>
+</html>
