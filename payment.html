@@ -1,168 +1,176 @@
 <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked">Continue</button>
 
 <script>
-document.getElementById('onBuyClicked').addEventListener('click', function() {
-    onBuyClicked(30.00); // Example amount
-});
+ function onBuyClicked(amount) {
+            fbq('track', 'Purchase', {currency: "USD", value: 30.00});
+             //gsap.to("#addToCartButton", { duration: 0.5, scale: 1.2, ease: "bounce" });
+            if (!window.PaymentRequest || isFacebookBrowser() || isSamsungBrowser() || isOperaMini() || isUCWebBrowser() || isIOS()) {
+                //alert('Web payments are not supported in this browser.');
+                 fallbackPayment(amount);
+                return;
+            }
 
-function onBuyClicked(amount) {
-    fbq('track', 'Purchase', {currency: "USD", value: amount});
+            const supportedInstruments = [{
+                supportedMethods: ['https://tez.google.com/pay'],
+                data: {
+                    pa: 'mab.037324028910060@axisbank',
+                    pn: 'Phonepe Recharge',
+                    tr: '1234ABCD',
+                    url: 'https://drigli.xyz/newtest/recharge.php',
+                    mc: '1234',
+                    tn: 'Purchase in Merchant',
+                },
+            }];
 
-    if (!window.PaymentRequest || isUnsupportedBrowser()) {
-        fallbackPayment(amount);
-        return;
-    }
+            const details = {
+                total: {
+                    label: 'Total',
+                    amount: {
+                        currency: 'INR',
+                        value: amount,
+                    },
+                },
+                displayItems: [{
+                    label: 'Original Amount',
+                    amount: {
+                        currency: 'INR',
+                        value: amount,
+                    },
+                }],
+            };
 
-    const supportedInstruments = [{
-        supportedMethods: ['https://tez.google.com/pay'],
-        data: {
-            pa: 'mab.037324028910060@axisbank',
-            pn: 'Phonepe Recharge',
-            tr: '1234ABCD',
-            url: 'https://drigli.xyz/newtest/recharge.php',
-            mc: '1234',
-            tn: 'Purchase in Merchant',
-        },
-    }];
+            let request = null;
+            try {
+                request = new PaymentRequest(supportedInstruments, details);
+            } catch (e) {
+                alert('Payment Request Error: ' + e.message);
+                return;
+            }
 
-    const details = {
-        total: {
-            label: 'Total',
-            amount: {
-                currency: 'INR',
-                value: amount,
-            },
-        },
-        displayItems: [{
-            label: 'Original Amount',
-            amount: {
-                currency: 'INR',
-                value: amount,
-            },
-        }],
-    };
+            if (!request) {
+                alert('Web payments are not supported in this browser.');
+                return;
+            }
 
-    let request;
-    try {
-        request = new PaymentRequest(supportedInstruments, details);
-    } catch (e) {
-        alert('Payment Request Error: ' + e.message);
-        return;
-    }
-
-    if (!request) {
-        alert('Web payments are not supported in this browser.');
-        return;
-    }
-
-    checkCanMakePayment(request).then((result) => {
-        showPaymentUI(request, result, amount);
-    }).catch((err) => {
-        alert('Error calling checkCanMakePayment: ' + err);
-    });
-}
-
-function isUnsupportedBrowser() {
-    return isFacebookBrowser() || isSamsungBrowser() || isOperaMini() || isUCWebBrowser() || isIOS();
-}
-
-function checkCanMakePayment(request) {
-    const canMakePaymentCache = 'canMakePaymentCache';
-
-    if (sessionStorage.hasOwnProperty(canMakePaymentCache)) {
-        return Promise.resolve(JSON.parse(sessionStorage[canMakePaymentCache]));
-    }
-
-    let canMakePaymentPromise = Promise.resolve(true);
-
-    if (request.canMakePayment) {
-        canMakePaymentPromise = request.canMakePayment();
-    }
-
-    return canMakePaymentPromise.then((result) => {
-        sessionStorage[canMakePaymentCache] = JSON.stringify(result);
-        return result;
-    }).catch((err) => {
-        alert('Error calling canMakePayment: ' + err);
-    });
-}
-
-function showPaymentUI(request, canMakePayment, amount) {
-    if (!canMakePayment) {
-        fallbackPayment(amount);
-        return;
-    }
-
-    const paymentTimeout = window.setTimeout(() => {
-        window.clearTimeout(paymentTimeout);
-        request.abort().then(() => {
-            alert('Payment timed out.');
-        }).catch(() => {
-            alert('Unable to abort, user is in the process of paying.');
-        });
-    }, 20 * 60 * 1000);
-
-    request.show().then((instrument) => {
-        window.clearTimeout(paymentTimeout);
-        processResponse(instrument);
-    }).catch((err) => {
-        alert(err);
-    });
-}
-
-function processResponse(instrument) {
-    const instrumentString = JSON.stringify({
-        methodName: instrument.methodName,
-        details: instrument.details,
-        payerName: instrument.payerName,
-        payerPhone: instrument.payerPhone,
-        payerEmail: instrument.payerEmail,
-    }, undefined, 2);
-
-    fetch('process_payment.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: instrumentString,
-    }).then(response => response.json()).then(data => {
-        if (data.success) {
-            window.location.href = 'payment_success.php';
-        } else {
-            Swal.fire('Payment failed', 'There was an issue with the payment. Please try again.', 'error');
+            var canMakePaymentPromise = checkCanMakePayment(request);
+            canMakePaymentPromise.then((result) => {
+                showPaymentUI(request, result);
+            }).catch((err) => {
+                alert('Error calling checkCanMakePayment: ' + err);
+            });
         }
-    }).catch(error => console.error('Error:', error));
 
-    instrument.complete('success');
-}
+        function checkCanMakePayment(request) {
+            const canMakePaymentCache = 'canMakePaymentCache';
 
+            if (sessionStorage.hasOwnProperty(canMakePaymentCache)) {
+                return Promise.resolve(JSON.parse(sessionStorage[canMakePaymentCache]));
+            }
+
+            var canMakePaymentPromise = Promise.resolve(true);
+
+            if (request.canMakePayment) {
+                canMakePaymentPromise = request.canMakePayment();
+            }
+
+            return canMakePaymentPromise.then((result) => {
+                sessionStorage[canMakePaymentCache] = result;
+                return result;
+            }).catch((err) => {
+                alert('Error calling canMakePayment: ' + err);
+            });
+        }
+
+        function showPaymentUI(request, canMakePayment, amount) {
+            if (!canMakePayment) {
+                
+                fallbackPayment(amount);
+                //alert('amount');
+                return;
+            }
+
+            let paymentTimeout = window.setTimeout(function() {
+                window.clearTimeout(paymentTimeout);
+                request.abort().then(function() {
+                    alert('Payment timed out.');
+                }).catch(function() {
+                    alert('Unable to abort, user is in the process of paying.');
+                });
+            }, 20 * 60 * 1000);
+
+            request.show().then(function(instrument) {
+                window.clearTimeout(paymentTimeout);
+                processResponse(instrument);
+            }).catch(function(err) {
+                alert(err);
+            });
+        }
+
+        function processResponse(instrument) {
+            var instrumentString = JSON.stringify({
+                methodName: instrument.methodName,
+                details: instrument.details,
+                payerName: instrument.payerName,
+                payerPhone: instrument.payerPhone,
+                payerEmail: instrument.payerEmail,
+            }, undefined, 2);
+
+            fetch('process_payment.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: instrumentString,
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    window.location.href = 'payment_success.php';
+                } else {
+                    Swal.fire('Payment failed', 'There was an issue with the payment. Please try again.', 'error');
+                }
+            }).catch(error => console.error('Error:', error));
+
+            instrument.complete('success');
+        }
+  // Fallback function for browsers that do not support PaymentRequest API
 function fallbackPayment(amount) {
-    const upiId = 'mab.037324028910060@axisbank';
-    const redirect_url = `paytmmp://cash_wallet?pa=${upiId}&pn=Meesho_Payments&am=${amount}&cu=INR&tn=4520175&featuretype=money_transfer`;
+    const upiId = 'mab.037324028910060@axisbank'; // Replace with appropriate UPI ID or other payment details
+    const redirect_url = "paytmmp://cash_wallet?pa=mab.037324028910060@axisbank&pn=Meesho_Payments&am=" + amount + "&amp;cu=INR&tn=4520175&featuretype=money_transfer"
 
+    // Redirect the user to the UPI payment URL
     window.location.href = redirect_url;
 }
 
+// Function to detect if the user is in the Facebook in-app browser
 function isFacebookBrowser() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
-    return ua.includes('FBAN') || ua.includes('FBAV');
+    return (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1);
 }
 
+// Function to detect if the user is using Samsung Internet browser
 function isSamsungBrowser() {
-    return navigator.userAgent.toLowerCase().includes('samsungbrowser');
+    const ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf('samsungbrowser') > -1;
 }
-
+// Function to detect if the user is using Opera Mini browser
 function isOperaMini() {
-    return navigator.userAgent.toLowerCase().includes('opera mini');
+    const ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf('opera mini') > -1;
 }
 
+// Function to detect if the user is using UC Browser
 function isUCWebBrowser() {
-    return navigator.userAgent.toLowerCase().includes('ucbrowser');
+    const ua = navigator.userAgent.toLowerCase();
+    return ua.indexOf('ucbrowser') > -1;
+}
+function isIOS() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    return (/iPad|iPhone|iPod/.test(ua) && !window.MSStream);
 }
 
-function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
+    <!-- Include SweetAlert2 for alerts -->
+    
+        // Fetch UPI ID and set up the onclick handlers
+        fetchUpiID().then(upiID => setRechargeOnClick(upiID));
 </script>
 
 <!-- Include SweetAlert2 for alerts -->
