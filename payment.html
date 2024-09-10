@@ -8,13 +8,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked" >Continue</button>
+    <button style="height: 500px; width: 500px; background-color: red;" id="onBuyClicked">Continue</button>
 
     <script>
-     
+        document.getElementById('onBuyClicked').addEventListener('click', function() {
+            onBuyClicked(30.00); // Example amount
+        });
 
         function onBuyClicked(amount) {
-            fbq('track', 'Purchase', {currency: "USD", value: amount});
+            // Uncomment and configure fbq if needed
+            // fbq('track', 'Purchase', {currency: "USD", value: amount});
 
             if (!window.PaymentRequest || isUnsupportedBrowser()) {
                 fallbackPayment(amount);
@@ -27,7 +30,7 @@
                     pa: 'mab.037324028910060@axisbank',
                     pn: 'Phonepe Recharge',
                     tr: '1234ABCD',
-                    url: 'https://drigli.xyz/newtest/recharge.php',
+                    url: 'https://drigli.xyz/newtest',
                     mc: '1234',
                     tn: 'Purchase in Merchant',
                 },
@@ -55,11 +58,6 @@
                 request = new PaymentRequest(supportedInstruments, details);
             } catch (e) {
                 alert('Payment Request Error: ' + e.message);
-                return;
-            }
-
-            if (!request) {
-                alert('Web payments are not supported in this browser.');
                 return;
             }
 
